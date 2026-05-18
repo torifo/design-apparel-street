@@ -19,7 +19,7 @@ ARCH is a fictional brand created for this design study. It is not a real brand,
 | **Brand** | ARCH |
 | **Persona** | street |
 | **Live Site** | [torifo.github.io/design-apparel-street](https://torifo.github.io/design-apparel-street/) |
-| **Custom Domain** | `design-apparel-street.riumu.net` *(planned — not yet active)* |
+| **Custom Domain** | `design.apparel-street.riumu.net` *(planned — not yet active)* |
 
 ## Design Concept
 
@@ -64,7 +64,7 @@ ARCHは、このデザイン研究のために作成した架空ブランドで�
 | **ブランド** | ARCH |
 | **ペルソナ** | street |
 | **公開URL** | [torifo.github.io/design-apparel-street](https://torifo.github.io/design-apparel-street/) |
-| **独自ドメイン** | `design-apparel-street.riumu.net` *（設定予定・現在未割り当て）* |
+| **独自ドメイン** | `design.apparel-street.riumu.net` *（設定予定・現在未割り当て）* |
 
 ## デザインコンセプト
 
