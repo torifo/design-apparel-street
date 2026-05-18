@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ARCH — Wear What You Mean</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── Reset ───────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #090907;
+      --bg-sub:      #111110;
+      --bg-card:     #131310;
+      --fg:          #F4EFE6;
+      --fg-muted:    #6B6560;
+      --border:      #1D1D1A;
+      --accent:      #C8FF00;
+      --accent-warm: #E8C84A;
+      --font-display: 'Clash Display', 'Noto Sans JP', sans-serif;
+      --font-body:    'DM Sans', 'Noto Sans JP', sans-serif;
+      --ease:         cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    html {
+      scroll-behavior: smooth;
+      /* 日本語禁則処理 */
+      line-break: strict;
+      overflow-wrap: anywhere;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    @media (max-width: 768px) { body { cursor: auto; } }
+
+    img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    a   { color: inherit; text-decoration: none; }
+
+    /* ── Page Loader ─────────────────────────────────── */
+    .loader {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      transition: opacity 0.7s var(--ease), visibility 0.7s;
+    }
+    .loader.gone { opacity: 0; visibility: hidden; pointer-events: none; }
+    .loader-logo {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 10vw, 7rem);
+      font-weight: 700;
+      letter-spacing: 0.4em;
+      color: var(--fg);
+      animation: loaderIn 1.2s var(--ease) both;
+    }
+    .loader-bar {
+      width: 120px;
+      height: 1px;
+      background: var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .loader-bar::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--accent);
+      animation: barFill 1s var(--ease) 0.2s both;
+    }
+    @keyframes loaderIn {
+      from { opacity: 0; letter-spacing: 0.1em; }
+      to   { opacity: 1; letter-spacing: 0.4em; }
+    }
+    @keyframes barFill {
+      from { transform: scaleX(0); transform-origin: left; }
+      to   { transform: scaleX(1); transform-origin: left; }
+    }
+
+    /* ── Grain Overlay ───────────────────────────────── */
+    .grain {
+      position: fixed;
+      inset: -100%;
+      width: 300%;
+      height: 300%;
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.04;
+      animation: grainShift 0.4s steps(1) infinite;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+    @keyframes grainShift {
+      0%  { transform: translate(0, 0); }
+      20% { transform: translate(-8%, -12%); }
+      40% { transform: translate(10%, 8%); }
+      60% { transform: translate(-5%, 20%); }
+      80% { transform: translate(15%, -5%); }
+    }
+
+    /* ── Custom Cursor ───────────────────────────────── */
+    .cursor-dot {
+      position: fixed;
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width 0.25s var(--ease), height 0.25s var(--ease), background 0.2s, opacity 0.2s;
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(244,239,230,0.4);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: width 0.5s var(--ease), height 0.5s var(--ease), border-color 0.3s, opacity 0.3s;
+    }
+    .cursor-dot.hover  { width: 0; height: 0; opacity: 0; }
+    .cursor-ring.hover { width: 56px; height: 56px; border-color: var(--accent); }
+
+    @media (max-width: 768px) { .cursor-dot, .cursor-ring { display: none; } }
+
+    /* ── Nav ─────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 500;
+      padding: 1.5rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.4s, border-bottom 0.4s;
+    }
+    nav.scrolled {
+      background: rgba(9,9,7,0.92);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+    }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      color: var(--fg);
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2.5rem;
+    }
+    .nav-link {
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--fg-muted);
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-link:hover { color: var(--fg); }
+    .nav-cart {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      color: var(--fg-muted);
+      transition: color 0.2s;
+    }
+    .nav-cart:hover { color: var(--fg); }
+    @media (max-width: 768px) {
+      nav { padding: 1.25rem 1.5rem; }
+      .nav-links .nav-link { display: none; }
+    }
+
+    /* ── Hero ────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      height: 100svh;
+      min-height: 600px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .hero-img-wrap {
+      position: absolute;
+      inset: 0;
+    }
+    .hero-img-wrap img {
+      filter: grayscale(100%) brightness(0.38) contrast(1.1);
+      transform: scale(1.08);
+      transition: transform 9s ease;
+    }
+    .hero-img-wrap::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to top, var(--bg) 0%, rgba(9,9,7,0.68) 46%, transparent 100%),
+        linear-gradient(to right, rgba(9,9,7,0.52) 0%, transparent 58%),
+        repeating-linear-gradient(90deg, rgba(200,255,0,.13) 0 1px, transparent 1px 8.33%);
+      mix-blend-mode: normal;
+    }
+    .hero-city-tag {
+      position: absolute;
+      right: 2.5rem;
+      top: 48%;
+      z-index: 3;
+      display: grid;
+      gap: .35rem;
+      color: var(--accent);
+      font-size: .62rem;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      text-align: right;
+    }
+    .hero-city-tag span {
+      padding: .28rem .45rem;
+      border: 1px solid rgba(200,255,0,.36);
+      background: rgba(9,9,7,.62);
+      backdrop-filter: blur(8px);
+    }
+    .hero-body {
+      position: relative;
+      z-index: 2;
+      padding: 0 2.5rem 4rem;
+    }
+    .hero-eyebrow {
+      position: absolute;
+      top: 5.5rem;   /* nav下に固定 */
+      left: 2.5rem;
+      z-index: 3;
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 500;
+      opacity: 0;
+      animation: fadeUp 0.8s var(--ease) 1.6s forwards;
+    }
+    @media (max-width: 768px) {
+      .hero-eyebrow { top: 4.5rem; left: 1.5rem; }
+    }
+    .hero-h1 {
+      font-family: var(--font-display);
+      /* vwとvhの小さい方を使い、大画面でも4行がviewport内に収まるよう制限 */
+      font-size: clamp(3.5rem, min(12vw, 13.5vh), 10rem);
+      font-weight: 700;
+      line-height: 0.87;
+      letter-spacing: -0.025em;
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+    .hero-h1 .line-wrap { overflow: hidden; display: block; }
+    .hero-h1 .line {
+      display: block;
+      transform: translateY(105%);
+      animation: slideUp 1.1s var(--ease) forwards;
+    }
+    .hero-h1 .line:nth-child(1) .line { animation-delay: 1.3s; }
+    .hero-h1 .line:nth-child(2) .line { animation-delay: 1.42s; }
+    .hero-h1 .line:nth-child(3) .line { animation-delay: 1.54s; }
+    .hero-h1 .line:nth-child(4) .line { animation-delay: 1.66s; color: var(--accent); }
+    .hero-foot {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 2rem;
+      opacity: 0;
+      animation: fadeUp 0.9s var(--ease) 2s forwards;
+    }
+    .hero-sub {
+      max-width: 30ch;
+      font-size: 0.82rem;
+      color: var(--fg-muted);
+      line-height: 1.75;
+    }
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.8rem;
+      background: var(--accent);
+      color: #09090a;
+      padding: 0.9rem 2.25rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 700;
+      white-space: nowrap;
+      transition: gap 0.35s var(--ease), transform 0.3s var(--ease);
+    }
+    .hero-cta:hover { gap: 1.5rem; transform: translateY(-2px); }
+    .hero-cta::after { content: '→'; }
+
+    /* scroll indicator */
+    .scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      z-index: 3;
+      opacity: 0;
+      animation: fadeIn 1s var(--ease) 2.5s forwards;
+    }
+    .scroll-hint span {
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--fg-muted);
+    }
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--fg-muted), transparent);
+      animation: scrollPulse 2s ease-in-out 2.5s infinite;
+    }
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.3; transform: scaleY(1); }
+      50% { opacity: 1; transform: scaleY(0.6); }
+    }
+
+    /* ── Hero mobile — ベーススタイルより後に置かないとカスケードで負ける ── */
+    @media (max-width: 768px) {
+      .hero-body { padding: 0 1.5rem 3rem; }
+      .hero-city-tag { right: 1.5rem; top: 5rem; text-align: left; }
+      .hero-foot {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.25rem;
+      }
+      .hero-sub { max-width: 100%; }
+      .hero-cta {
+        padding: 0.75rem 1.6rem;
+        font-size: 0.72rem;
+      }
+      .scroll-hint { display: none; }
+    }
+
+    /* ── Shared keyframes ────────────────────────────── */
+    @keyframes slideUp {
+      to { transform: translateY(0); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    /* ── Scroll reveal ───────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.85s var(--ease), transform 0.85s var(--ease);
+    }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+    .d1 { transition-delay: 0.08s; }
+    .d2 { transition-delay: 0.16s; }
+    .d3 { transition-delay: 0.24s; }
+    .d4 { transition-delay: 0.32s; }
+
+    /* ── Section chrome ──────────────────────────────── */
+    /* fixed nav 分のスクロールオフセット — anchor遷移時にコンテンツがnavに隠れるのを防ぐ */
+    [id] { scroll-margin-top: 5rem; }
+    .section { padding: 7rem 2.5rem; }
+    .tag {
+      font-size: 0.62rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--fg-muted);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+    .tag::before {
+      content: '';
+      width: 2rem;
+      height: 1px;
+      background: var(--border);
+      display: block;
+    }
+
+    /* ── Arrivals ────────────────────────────────────── */
+    .arrivals-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 1.25rem;
+      align-items: start;
+    }
+    .p-card:nth-child(1) { grid-column: 1 / 5; }
+    .p-card:nth-child(2) { grid-column: 5 / 9; margin-top: 5rem; }
+    .p-card:nth-child(3) { grid-column: 9 / 13; }
+    .p-card:nth-child(4) { grid-column: 3 / 7; margin-top: 2.5rem; }
+
+    .p-card { position: relative; }
+    .p-img  {
+      aspect-ratio: 3/4;
+      overflow: hidden;
+      position: relative;
+      background: var(--bg-card);
+    }
+    .p-img img {
+      filter: grayscale(15%) brightness(0.95);
+      transition: transform 0.9s var(--ease), filter 0.6s;
+    }
+    .p-card:hover .p-img img {
+      transform: scale(1.07);
+      filter: grayscale(0%) brightness(1);
+    }
+    .p-badge {
+      position: absolute;
+      top: 0.875rem;
+      left: 0.875rem;
+      background: var(--accent);
+      color: #09090a;
+      font-size: 0.55rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.55rem;
+      font-weight: 700;
+      z-index: 1;
+    }
+    .p-info { padding: 0.875rem 0 0; }
+    .p-name {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      letter-spacing: 0.01em;
+    }
+    .p-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .p-price {
+      font-size: 0.8rem;
+      color: var(--fg-muted);
+    }
+    .p-swatch {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      border: 1px solid rgba(244,239,230,0.15);
+    }
+
+    @media (max-width: 900px) {
+      .arrivals-grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
+      .p-card:nth-child(1) { grid-column: 1 / 2; margin-top: 0; }
+      .p-card:nth-child(2) { grid-column: 2 / 3; margin-top: 2rem; }
+      .p-card:nth-child(3) { grid-column: 1 / 2; margin-top: 0; }
+      .p-card:nth-child(4) { grid-column: 2 / 3; margin-top: 0; }
+    }
+
+    /* ── Marquee ─────────────────────────────────────── */
+    .marquee {
+      overflow: hidden;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 0;
+      background: var(--bg-sub);
+    }
+    .marquee-track {
+      display: flex;
+      white-space: nowrap;
+      animation: marqueeScroll 22s linear infinite;
+    }
+    .marquee:hover .marquee-track { animation-play-state: paused; }
+    .marquee-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 2.5rem;
+      padding-right: 2.5rem;
+      flex-shrink: 0;
+    }
+    .m-text {
+      font-family: var(--font-display);
+      font-size: clamp(1.75rem, 4vw, 3.25rem);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--fg);
+    }
+    .m-sep {
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    @keyframes marqueeScroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ── Brand Story ─────────────────────────────────── */
+    .story {
+      background: var(--fg);
+      color: var(--bg);
+      padding: 9rem 2.5rem;
+    }
+    .story-wrap { max-width: 960px; }
+    .story-tag {
+      font-size: 0.62rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #8A8478;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 3.5rem;
+    }
+    .story-tag::before {
+      content: '';
+      width: 2rem;
+      height: 1px;
+      background: #C8C3B8;
+      display: block;
+    }
+    .story-h2 {
+      font-family: var(--font-display);
+      font-size: clamp(2.75rem, 7vw, 6rem);
+      font-weight: 700;
+      line-height: 0.95;
+      letter-spacing: -0.025em;
+      margin-bottom: 4rem;
+    }
+    .story-h2 .outline {
+      -webkit-text-stroke: 2px var(--bg);
+      color: transparent;
+    }
+    .story-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3.5rem;
+      font-size: 0.875rem;
+      line-height: 1.9;
+      color: #3A3830;
+    }
+    @media (max-width: 768px) {
+      .story-cols { grid-template-columns: 1fr; gap: 1.75rem; }
+    }
+
+    /* ── Categories ──────────────────────────────────── */
+    .cat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+    .cat-card {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 3/4;
+      background: var(--bg-card);
+    }
+    .cat-card img {
+      filter: grayscale(25%) brightness(0.8);
+      transition: transform 1.1s var(--ease), filter 0.7s;
+    }
+    .cat-card:hover img {
+      transform: scale(1.05);
+      filter: grayscale(0%) brightness(0.9);
+    }
+    .cat-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(9,9,7,0.85) 25%, transparent 65%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 2rem;
+    }
+    .cat-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 4vw, 3.75rem);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      line-height: 1;
+      margin-bottom: 0.875rem;
+    }
+    .cat-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.65rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+      transition: gap 0.35s var(--ease);
+    }
+    .cat-link:hover { gap: 1.1rem; }
+    .cat-link::after { content: '→'; }
+    @media (max-width: 600px) {
+      .cat-grid { grid-template-columns: 1fr; }
+      .cat-card { aspect-ratio: 4/3; }
+    }
+
+    /* ── Feature strip ───────────────────────────────── */
+    .features {
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .feat {
+      padding: 3rem 2.5rem;
+      border-right: 1px solid var(--border);
+    }
+    .feat:last-child { border-right: 0; }
+    .feat-icon { margin-bottom: 1.25rem; opacity: 0.5; }
+    .feat-title {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .feat-body {
+      font-size: 0.8rem;
+      color: var(--fg-muted);
+      line-height: 1.7;
+    }
+    @media (max-width: 768px) {
+      .features { grid-template-columns: 1fr; }
+      .feat { border-right: 0; border-bottom: 1px solid var(--border); }
+      .feat:last-child { border-bottom: 0; }
+    }
+
+    /* ── Footer ──────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 4rem 2.5rem 3rem;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+    .ft-logo {
+      font-family: var(--font-display);
+      font-size: 2.75rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.75rem;
+    }
+    .ft-tagline { font-size: 0.75rem; color: var(--fg-muted); letter-spacing: 0.1em; margin-bottom: 2rem; }
+    .ft-copy    { font-size: 0.68rem; color: var(--fg-muted); line-height: 1.7; }
+    .ft-heading {
+      font-size: 0.62rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--fg-muted);
+      margin-bottom: 1.25rem;
+    }
+    .ft-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+    .ft-list a {
+      font-size: 0.82rem;
+      color: var(--fg-muted);
+      transition: color 0.2s;
+    }
+    .ft-list a:hover { color: var(--fg); }
+    @media (max-width: 768px) {
+      footer { grid-template-columns: 1fr 1fr; }
+      .ft-brand { grid-column: 1 / -1; }
+    }
+    @media (max-width: 480px) {
+      footer { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loader -->
+  <div class="loader" id="loader">
+    <span class="loader-logo">ARCH</span>
+    <div class="loader-bar"></div>
+  </div>
+
+  <!-- Grain -->
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- Cursors -->
+  <div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
+  <div class="cursor-ring" id="cursorRing" aria-hidden="true"></div>
+
+  <!-- ── Nav ──────────────────────────────────────────── -->
+  <nav id="nav">
+    <a href="#" class="nav-logo">ARCH</a>
+    <div class="nav-links">
+      <a href="#arrivals" class="nav-link">Collection</a>
+      <a href="#story" class="nav-link">About</a>
+      <a href="#" class="nav-link">Stores</a>
+      <a href="#" class="nav-cart nav-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 01-8 0"/>
+        </svg>
+        Cart (0)
+      </a>
+    </div>
+  </nav>
+
+  <!-- ── Hero ─────────────────────────────────────────── -->
+  <section class="hero">
+    <div class="hero-img-wrap">
+      <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1600&q=80" alt="ARCH fictional streetwear campaign" id="heroImg" />
+    </div>
+    <div class="hero-city-tag" aria-hidden="true"><span>Shibuya street signal</span><span>Drop 01 / 23:00</span></div>
+
+    <!-- eyebrowはhero内にabsoluteで配置 — hero-bodyのflowに乗せないことでh1拡大時に枠外へ押し出されない -->
+    <p class="hero-eyebrow">SS 2026 — New Collection</p>
+
+    <div class="hero-body">
+      <h1 class="hero-h1">
+        <span class="line-wrap"><span class="line">WEAR</span></span>
+        <span class="line-wrap"><span class="line">WHAT</span></span>
+        <span class="line-wrap"><span class="line">YOU</span></span>
+        <span class="line-wrap"><span class="line" style="color:var(--accent)">MEAN.</span></span>
+      </h1>
+      <div class="hero-foot">
+        <p class="hero-sub">
+          自分の言葉で語れる服を。<br>
+          ARCHは"正直に生きる"をテーマにしたセレクトショップです。
+        </p>
+        <a href="#arrivals" class="hero-cta">New Arrivals</a>
+      </div>
+    </div>
+
+    <div class="scroll-hint" aria-hidden="true">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ── New Arrivals ──────────────────────────────────── -->
+  <section class="section" id="arrivals">
+    <p class="tag">New Arrivals — SS 2026</p>
+    <div class="arrivals-grid">
+
+      <div class="p-card reveal">
+        <div class="p-img">
+          <span class="p-badge">New</span>
+          <img src="https://picsum.photos/seed/archp1/600/800" alt="Heavy Cotton Oversized Tee" loading="lazy" />
+        </div>
+        <div class="p-info">
+          <p class="p-name">Heavy Cotton Oversized Tee</p>
+          <div class="p-row">
+            <span class="p-price">¥6,800</span>
+            <span class="p-swatch" style="background:#1E1E1C;"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-card reveal d1">
+        <div class="p-img">
+          <img src="https://picsum.photos/seed/archp2/600/800" alt="Washed Denim Jacket" loading="lazy" />
+        </div>
+        <div class="p-info">
+          <p class="p-name">Washed Denim Jacket</p>
+          <div class="p-row">
+            <span class="p-price">¥14,800</span>
+            <span class="p-swatch" style="background:#3A5070;"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-card reveal d2">
+        <div class="p-img">
+          <span class="p-badge">Limited</span>
+          <img src="https://picsum.photos/seed/archp3/600/800" alt="Relaxed Cargo Pants" loading="lazy" />
+        </div>
+        <div class="p-info">
+          <p class="p-name">Relaxed Cargo Pants</p>
+          <div class="p-row">
+            <span class="p-price">¥12,800</span>
+            <span class="p-swatch" style="background:#585040;"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-card reveal d3">
+        <div class="p-img">
+          <img src="https://picsum.photos/seed/archp4/600/800" alt="Oversized Coach Jacket" loading="lazy" />
+        </div>
+        <div class="p-info">
+          <p class="p-name">Oversized Coach Jacket</p>
+          <div class="p-row">
+            <span class="p-price">¥16,800</span>
+            <span class="p-swatch" style="background:#B8B0A0;"></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Marquee ───────────────────────────────────────── -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <div class="marquee-item"><span class="m-text">WEAR WHAT YOU MEAN</span><span class="m-sep"></span></div>
+      <div class="marquee-item"><span class="m-text">SS 2026</span><span class="m-sep"></span></div>
+      <div class="marquee-item"><span class="m-text">ARCH</span><span class="m-sep"></span></div>
+      <div class="marquee-item"><span class="m-text">TOKYO · SHIBUYA</span><span class="m-sep"></span></div>
+      <div class="marquee-item"><span class="m-text">WEAR WHAT YOU MEAN</span><span class="m-sep"></span></div>
+      <div class="marquee-item"><span class="m-text">SS 2026</span><span class="m-sep"></span></div>
+      <div class="marquee-item"><span class="m-text">ARCH</span><span class="m-sep"></span></div>
+      <div class="marquee-item"><span class="m-text">TOKYO · SHIBUYA</span><span class="m-sep"></span></div>
+    </div>
+  </div>
+
+  <!-- ── Brand Story ───────────────────────────────────── -->
+  <section class="story" id="story">
+    <div class="story-wrap">
+      <p class="story-tag reveal">Our Philosophy</p>
+      <h2 class="story-h2 reveal d1">
+        服は言語だ。<br>
+        <span class="outline">あなたは</span><br>
+        何を語る?
+      </h2>
+      <div class="story-cols reveal d2">
+        <p>ARCHは「自分に正直であること」を信じるブランドです。流行を追いかけるのではなく、あなた自身の声が服を通して伝わるように—そんなセレクションを続けています。</p>
+        <p>2021年、渋谷の小さなショールームから始まったARCHは、いまも変わらず「本当に好きか」だけをセレクトの基準に置いています。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Categories ────────────────────────────────────── -->
+  <section class="section">
+    <p class="tag">Shop by Category</p>
+    <div class="cat-grid">
+      <div class="cat-card reveal">
+        <img src="https://picsum.photos/seed/arch-tops/800/1067" alt="Tops" loading="lazy" />
+        <div class="cat-overlay">
+          <h3 class="cat-title">Tops</h3>
+          <a href="#" class="cat-link">Shop Now</a>
+        </div>
+      </div>
+      <div class="cat-card reveal d1">
+        <img src="https://picsum.photos/seed/arch-bots/800/1067" alt="Bottoms" loading="lazy" />
+        <div class="cat-overlay">
+          <h3 class="cat-title">Bottoms</h3>
+          <a href="#" class="cat-link">Shop Now</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Feature strip ─────────────────────────────────── -->
+  <div class="features">
+    <div class="feat reveal">
+      <div class="feat-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+          <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+        </svg>
+      </div>
+      <p class="feat-title">送料無料</p>
+      <p class="feat-body">¥8,000以上のご注文で全国送料無料。翌日配達エリアあり。</p>
+    </div>
+    <div class="feat reveal d1">
+      <div class="feat-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+          <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+        </svg>
+      </div>
+      <p class="feat-title">30日間返品保証</p>
+      <p class="feat-body">サイズが合わなかった場合も安心。未使用品に限り30日間返品を承ります。</p>
+    </div>
+    <div class="feat reveal d2">
+      <div class="feat-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <p class="feat-title">サステナブル素材</p>
+      <p class="feat-body">オーガニックコットン・リサイクル素材を積極採用。地球への誠実さも、ARCHのスタンス。</p>
+    </div>
+  </div>
+
+  <!-- ── Footer ────────────────────────────────────────── -->
+  <footer>
+    <div class="ft-brand">
+      <p class="ft-logo">ARCH</p>
+      <p class="ft-tagline">Wear What You Mean</p>
+      <p class="ft-copy">
+        © 2026 ARCH All rights reserved.<br>
+        渋谷区神南1-X-X, Tokyo<br><br>
+        Design Study — GitHub Pages<br>
+        架空ブランド / Fictional brand
+      </p>
+    </div>
+    <div>
+      <p class="ft-heading">Shop</p>
+      <div class="ft-list">
+        <a href="#">New Arrivals</a>
+        <a href="#">Tops</a>
+        <a href="#">Bottoms</a>
+        <a href="#">Outerwear</a>
+        <a href="#">Accessories</a>
+      </div>
+    </div>
+    <div>
+      <p class="ft-heading">Info</p>
+      <div class="ft-list">
+        <a href="#">About ARCH</a>
+        <a href="#">Store Info</a>
+        <a href="#">Sustainability</a>
+        <a href="#">Instagram</a>
+        <a href="#">TikTok</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    /* ── Loader ─────────────────────────────── */
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('loader').classList.add('gone');
+        document.getElementById('heroImg').style.transform = 'scale(1)';
+      }, 1400);
+    });
+
+    /* ── Custom cursor ───────────────────────── */
+    const dot  = document.getElementById('cursorDot');
+    const ring = document.getElementById('cursorRing');
+    let rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      dot.style.left  = e.clientX + 'px';
+      dot.style.top   = e.clientY + 'px';
+      rx += (e.clientX - rx) * 0.12;
+      ry += (e.clientY - ry) * 0.12;
+      ring.style.left = rx + 'px';
+      ring.style.top  = ry + 'px';
+    });
+
+    function tick() {
+      rx += (parseFloat(dot.style.left || 0) - rx) * 0.12;
+      ry += (parseFloat(dot.style.top  || 0) - ry) * 0.12;
+      ring.style.left = rx + 'px';
+      ring.style.top  = ry + 'px';
+      requestAnimationFrame(tick);
+    }
+    tick();
+
+    const hovers = document.querySelectorAll('a, button, .p-card, .cat-card');
+    hovers.forEach(el => {
+      el.addEventListener('mouseenter', () => { dot.classList.add('hover'); ring.classList.add('hover'); });
+      el.addEventListener('mouseleave', () => { dot.classList.remove('hover'); ring.classList.remove('hover'); });
+    });
+
+    /* ── Nav scroll style ────────────────────── */
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 60);
+    }, { passive: true });
+
+    /* ── Scroll reveal ───────────────────────── */
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in'); observer.unobserve(e.target); }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -50px 0px' });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    /* ── Hero parallax ───────────────────────── */
+    const heroH1 = document.querySelector('.hero-h1');
+    window.addEventListener('scroll', () => {
+      if (heroH1 && window.scrollY < window.innerHeight) {
+        heroH1.style.transform = `translateY(${window.scrollY * 0.12}px)`;
+      }
+    }, { passive: true });
+  </script>
+</body>
+</html>
