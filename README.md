@@ -4,7 +4,7 @@
 
 <a id="english"></a>
 
-# ARCH — apparel-street
+# ARCH — design-apparel-street
 
 > **"Wear What You Mean"**
 
@@ -18,8 +18,8 @@ ARCH is a fictional brand created for this design study. It is not a real brand,
 |---|---|
 | **Brand** | ARCH |
 | **Persona** | street |
-| **Live Site** | [torifo.github.io/apparel-street](https://torifo.github.io/apparel-street/) |
-| **Custom Domain** | `design.apparel-street.riumu.net` *(planned — not yet active)* |
+| **Live Site** | [torifo.github.io/design-apparel-street](https://torifo.github.io/design-apparel-street/) |
+| **Custom Domain** | `design-apparel-street.riumu.net` *(planned — not yet active)* |
 
 ## Design Concept
 
@@ -40,16 +40,16 @@ This repository is one of four design studies under the **apparel persona series
 
 | Persona | Brand | Repo |
 |---------|-------|------|
-| trend | LUEUR | [apparel-trend](https://github.com/torifo/apparel-trend) |
-| street | ARCH | [apparel-street](https://github.com/torifo/apparel-street) |
-| vintage | FRAY | [apparel-vintage](https://github.com/torifo/apparel-vintage) |
-| minimal | FORM | [apparel-minimal](https://github.com/torifo/apparel-minimal) |
+| trend | LUEUR | [design-apparel-trend](https://github.com/torifo/design-apparel-trend) |
+| street | ARCH | [design-apparel-street](https://github.com/torifo/design-apparel-street) |
+| vintage | FRAY | [design-apparel-vintage](https://github.com/torifo/design-apparel-vintage) |
+| minimal | FORM | [design-apparel-minimal](https://github.com/torifo/design-apparel-minimal) |
 
 ---
 
 <a id="japanese"></a>
 
-# ARCH — apparel-street（日本語）
+# ARCH — design-apparel-street（日本語）
 
 > **「自分の言葉で語れる服を」**
 
@@ -63,8 +63,8 @@ ARCHは、このデザイン研究のために作成した架空ブランドで�
 |---|---|
 | **ブランド** | ARCH |
 | **ペルソナ** | street |
-| **公開URL** | [torifo.github.io/apparel-street](https://torifo.github.io/apparel-street/) |
-| **独自ドメイン** | `design.apparel-street.riumu.net` *（設定予定・現在未割り当て）* |
+| **公開URL** | [torifo.github.io/design-apparel-street](https://torifo.github.io/design-apparel-street/) |
+| **独自ドメイン** | `design-apparel-street.riumu.net` *（設定予定・現在未割り当て）* |
 
 ## デザインコンセプト
 

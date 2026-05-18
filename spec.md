@@ -1,4 +1,4 @@
-# ARCH — apparel-street Spec
+# ARCH — design-apparel-street Spec
 
 **Status:** Approved  
 **Author:** torifo  
@@ -23,7 +23,7 @@ Highsnobiety的エディトリアル感と渋谷ストリートの緊張感を�
 ### Background
 - 既存の `/Users/akito-shoji/dev/design/apparel/index.html` を元に精緻化
 - ARCHは本デザイン研究のために作成した架空ブランドであり、実在のブランド・店舗・商品ではない
-- `apparel-street` リポジトリ、`design.apparel-street.riumu.net` 独自ドメイン予定
+- `design-apparel-street` リポジトリ、`design-apparel-street.riumu.net` 独自ドメイン予定
 - 同シリーズ4作のうちの1作
 
 ---
@@ -183,7 +183,7 @@ index.html
 | # | Question | Owner | Due | Status |
 |---|----------|-------|-----|--------|
 | 1 | 既存 index.html を完全置換するか、このspec.mdから新規実装するか | torifo | 実装開始時 | Open |
-| 2 | `design.apparel-street.riumu.net` のDNS設定タイミング | torifo | 後日 | Open |
+| 2 | `design-apparel-street.riumu.net` のDNS設定タイミング | torifo | 後日 | Open |
 
 ---
 
