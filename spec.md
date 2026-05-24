@@ -173,7 +173,10 @@ index.html
 - **Grain**: `position:fixed; inset:-100%; width:300%; height:300%` で画面全体をカバー、`animation: grainShift 0.4s steps(1) infinite` でチラつき演出
 - **カーソルリング遅延**: `requestAnimationFrame` ループで `rx += (target - rx) * 0.12` の慣性追従
 - **パララックス**: `scroll` イベントで `heroTitle.style.transform = translateY(scrollY * 0.12px)` — `will-change: transform` 付与
-- **グリッドオフセット**: 2枚目は `margin-top: 5rem`、4枚目は `grid-column: 3/7; margin-top: 2.5rem`
+- **グリッドオフセット（意図的な非対称）**: 2枚目は `margin-top: 5rem`、4枚目は `grid-column: 3/7; margin-top: 2.5rem`
+  - **設計意図**: 上部 Arrivals グリッドは「雑誌的非対称オフセット」（FR-05 / US-02 AC / Key Design Decisions）で、4 枚の**上端**を意図的にズラす。これは「整列＝単調」を避け、エディトリアル誌（Highsnobiety等）のグリッドブレイク感を再現するため
+  - **下部 Categories との対比**: 下部 `.cat-grid` は 2 カラム整列（cat-card は全て同一 aspect-ratio・margin なし）で、上のグリッドブレイクとの**意図的なリズム差**を作っている。「上はカオス＝発見感、下は整然＝選びやすさ」というセクション役割の使い分け
+  - **FB-017 受領（2026-05-25）**: 「上の写真の高さが揃ってないのは敢えて？」というレビュー指摘あり。**意図的**であり、整列させると本来のコンセプトが崩れるため修正しない判断。将来の同種レビューを抑止するため、index.html の `.arrivals-grid` 周辺に意図を示すコメントを追加
 - **マーキー**: 8アイテム（4×2セット）で `translateX(-50%)` アニメ
 
 ---
